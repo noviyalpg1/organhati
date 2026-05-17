@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Media Interaktif IPAS - Organ Hati</title>
+    <style>
+        /* === VARIABEL CSS & TEMA UTAMA === */
+        :root {
+            --primary: #1E88E5; /* Biru Utama */
+            --primary-dark: #1565C0;
+            --primary-light: #64B5F6;
+            --secondary: #FFC107; /* Aksen Kuning/Oranye */
+            --bg-color: #F0F4F8; /* Latar Belakang Abu-biru muda */
+            --text-main: #333333;
+            --text-light: #666666;
+            --white: #FFFFFF;
+            --success: #4CAF50;
+            --danger: #F44336;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
+            --border-radius: 16px;
+            --border-radius-lg: 24px;
+            --transition: all 0.3s ease;
+        }
+
+        /* === RESET & TIPOGRAFI === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow: hidden; 
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: var(--white);
+            transition: opacity 0.5s ease;
+        }
+        .loader {
+            border: 8px solid rgba(255,255,255,0.3);
+            border-top: 8px solid var(--white);
+            border-radius: 50%;
+            width: 60px; height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* === LAYOUT UTAMA === */
+        /* Sidebar */
+        #sidebar {
+            width: 280px;
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            text-align: center;
+            background-color: var(--primary);
+            color: var(--white);
+            border-bottom-right-radius: var(--border-radius-lg);
+        }
+        .sidebar-header h2 { font-size: 1.5rem; margin-bottom: 5px;}
+        .sidebar-header p { font-size: 0.9rem; opacity: 0.9;}
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 10px;
+            flex-grow: 1;
+        }
+
+        .menu-item {
+            padding: 16px 20px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+        .menu-item:hover {
+            background-color: var(--bg-color);
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+        .menu-item.active {
+            background-color: var(--primary-light);
+            color: var(--white);
+            box-shadow: 0 4px 8px rgba(30, 136, 229, 0.3);
+        }
+        .menu-icon {
+            margin-right: 15px;
+            width: 24px; height: 24px;
+            fill: currentColor;
+        }
+
+        /* Area Konten Utama */
+        #main-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Header Atas */
+        header {
+            height: 80px;
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 90;
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .hamburger-btn {
+            display: none;
+            background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary);
+            padding: 10px; border-radius: 8px;
+        }
+        .app-title { font-weight: bold; color: var(--primary-dark); font-size: 1.3rem;}
+
+        .header-right { display: flex; align-items: center; gap: 20px; }
+        .progress-container {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--bg-color); padding: 8px 16px; border-radius: 20px;
+        }
+        .progress-bar-bg {
+            width: 150px; height: 10px; background: #e0e0e0; border-radius: 5px; overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%; background: var(--success); width: 0%; transition: width 0.5s ease;
+        }
+        .progress-text { font-weight: bold; color: var(--text-main); font-size: 0.9rem;}
+
+        .control-btn {
+            background: var(--bg-color); border: none; width: 45px; height: 45px;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: var(--transition); color: var(--primary);
+        }
+        .control-btn:hover { background: var(--primary-light); color: var(--white); transform: scale(1.05); }
+
+        /* Kontainer Konten Halaman */
+        #content-container {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .page-section {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .page-section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* === DESAIN HALAMAN BERANDA === */
+        .hero-section {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        .hero-text h1 { font-size: 2.8rem; color: var(--primary-dark); margin-bottom: 10px; line-height: 1.2;}
+        .hero-text h2 { font-size: 1.5rem; color: var(--secondary); margin-bottom: 20px;}
+        .hero-text p { font-size: 1.2rem; color: var(--text-light); margin-bottom: 30px; line-height: 1.6;}
+        .btn-primary {
+            background-color: var(--primary); color: var(--white);
+            border: none; padding: 18px 40px; font-size: 1.3rem; font-weight: bold;
+            border-radius: 30px; cursor: pointer; transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(30, 136, 229, 0.4); display: inline-flex; align-items: center; gap: 10px;
+        }
+        .btn-primary:hover { background-color: var(--primary-dark); transform: translateY(-3px); box-shadow: 0 6px 20px rgba(30, 136, 229, 0.6); }
+        .hero-image svg { width: 100%; max-width: 400px; height: auto; animation: float 3s ease-in-out infinite; }
+        
+        /* CSS Trick untuk menyembunyikan UI Assemblr (Author, AR button, Fullscreen) */
+        .assemblr-wrapper {
+            position: relative;
+            width: 100%;
+            min-width: 350px;
+            height: 350px;
+            overflow: hidden;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            background-color: #fff;
+        }
+        .assemblr-wrapper iframe {
+            position: absolute;
+            top: -65px;
+            left: 0;
+            width: 100%;
+            height: calc(100% + 140px);
+            border: none;
+        }
+
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+
+        .info-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .card {
+            background: var(--white); padding: 25px; border-radius: var(--border-radius);
+            box-shadow: var(--shadow); text-align: center; transition: var(--transition);
+            border-top: 5px solid var(--primary);
+        }
+        .card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); }
+        .card-icon { width: 60px; height: 60px; margin: 0 auto 15px; fill: var(--secondary); }
+        .card h3 { color: var(--primary-dark); margin-bottom: 10px; font-size: 1.3rem;}
+
+        /* === DESAIN HALAMAN MATERI === */
+        .materi-tabs { display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; flex-wrap: wrap; }
+        .tab-btn {
+            background: var(--white); border: 2px solid var(--primary-light); color: var(--primary);
+            padding: 12px 25px; border-radius: 30px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; transition: var(--transition);
+        }
+        .tab-btn.active { background: var(--primary); color: var(--white); border-color: var(--primary); box-shadow: 0 4px 10px rgba(30, 136, 229, 0.3);}
+        .sub-materi { display: none; background: var(--white); padding: 30px; border-radius: var(--border-radius-lg); box-shadow: var(--shadow); }
+        .sub-materi.active { display: block; animation: fadeIn 0.3s; }
+        
+        .content-split { display: flex; gap: 30px; align-items: center; }
+        .content-text { flex: 1; font-size: 1.2rem; line-height: 1.8; }
+        .content-visual { flex: 1; text-align: center; }
+        .interactive-element { cursor: pointer; transition: transform 0.2s; }
+        .interactive-element:hover { transform: scale(1.05); filter: drop-shadow(0 0 10px rgba(255,193,7,0.8)); }
+        
+        .fact-card { background: var(--bg-color); border-left: 5px solid var(--secondary); padding: 15px; margin-top: 20px; border-radius: 8px;}
+        
+        .flow-diagram { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; }
+        .flow-box { background: var(--primary-light); color: white; padding: 15px 25px; border-radius: 12px; font-weight: bold; }
+        .flow-arrow { font-size: 2rem; color: var(--primary); }
+
+        /* === DESAIN HALAMAN LATIHAN (TERMASUK HOTS) === */
+        .latihan-container { background: var(--white); padding: 40px; border-radius: var(--border-radius-lg); box-shadow: var(--shadow); min-height: 60vh;}
+        .latihan-header { text-align: center; margin-bottom: 30px; }
+        .latihan-header h2 { color: var(--primary-dark); font-size: 2rem; }
+        .latihan-progress { font-size: 1.2rem; color: var(--text-light); margin-top: 10px; font-weight: bold;}
+        
+        .question-box { font-size: 1.6rem; text-align: center; margin-bottom: 30px; font-weight: 600; color: var(--text-main); }
+        
+        /* UI Soal HOTS (Kontekstual & MCQ) */
+        .hots-context { background: #e3f2fd; padding: 25px; border-left: 6px solid var(--primary); border-radius: 12px; margin-bottom: 25px; text-align: left; font-size: 1.15rem; line-height: 1.7; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .hots-context b { color: var(--primary-dark); font-size: 1.25rem;}
+        .mcq-container { display: flex; flex-direction: column; gap: 15px; }
+        .btn-mcq { background: var(--white); border: 2px solid var(--primary-light); padding: 18px 25px; font-size: 1.1rem; border-radius: 16px; cursor: pointer; transition: var(--transition); text-align: left; display: flex; align-items: flex-start; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .btn-mcq:hover { background: var(--primary-light); color: white; transform: translateX(8px); box-shadow: var(--shadow); }
+        .btn-mcq .opt-letter { font-weight: 900; margin-right: 15px; color: var(--primary); font-size: 1.2rem; }
+        .btn-mcq:hover .opt-letter { color: white; }
+
+        /* Tipe 1: Benar Salah */
+        .tf-buttons { display: flex; justify-content: center; gap: 30px; }
+        .btn-tf {
+            flex: 1; max-width: 250px; padding: 25px; font-size: 1.8rem; font-weight: bold;
+            border: none; border-radius: var(--border-radius); cursor: pointer; transition: var(--transition); color: white;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+        }
+        .btn-true { background-color: var(--success); }
+        .btn-true:active { transform: translateY(6px); box-shadow: none; }
+        .btn-false { background-color: var(--danger); }
+        .btn-false:active { transform: translateY(6px); box-shadow: none; }
+
+        /* Tipe 2: Mencocokkan */
+        .match-container { display: flex; justify-content: space-between; gap: 20px; }
+        .match-col { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+        .match-item {
+            background: var(--bg-color); padding: 20px; border-radius: 12px; font-size: 1.2rem;
+            text-align: center; cursor: pointer; border: 3px solid transparent; transition: var(--transition);
+            font-weight: bold; user-select: none;
+        }
+        .match-item.selected { border-color: var(--primary); background: #e3f2fd; transform: scale(1.02); }
+        .match-item.matched { background: var(--success); color: white; border-color: var(--success); cursor: default; opacity: 0.8; }
+        .match-item.error { animation: shake 0.5s; border-color: var(--danger); background: #ffebee;}
+
+        /* Tipe 3: Drag Drop */
+        .dd-container { display: flex; flex-direction: column; gap: 30px; }
+        .dd-items { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; min-height: 80px; padding: 15px; background: var(--bg-color); border-radius: 12px;}
+        .dd-item {
+            background: var(--white); padding: 15px 25px; border-radius: 30px; font-weight: bold;
+            box-shadow: var(--shadow); cursor: grab; user-select: none; border: 2px solid var(--primary-light);
+        }
+        .dd-item:active { cursor: grabbing; transform: scale(1.1); }
+        .dd-zones { display: flex; justify-content: center; gap: 30px; }
+        .dd-zone {
+            flex: 1; max-width: 300px; min-height: 200px; border: 3px dashed var(--text-light);
+            border-radius: var(--border-radius); padding: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center;
+        }
+        .dd-zone h3 { margin-bottom: 15px; color: var(--primary-dark); }
+        .dd-zone.drag-over { background: #e8f5e9; border-color: var(--success); }
+
+        /* Tipe 4: Susun Kalimat */
+        .sentence-container { display: flex; flex-direction: column; align-items: center; gap: 30px;}
+        .sentence-dropzone {
+            width: 100%; min-height: 80px; background: var(--bg-color); border: 2px dashed var(--primary);
+            border-radius: 12px; padding: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+        }
+        .word-bank { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .word-piece {
+            background: var(--primary); color: white; padding: 12px 20px; border-radius: 8px; font-size: 1.3rem;
+            cursor: pointer; user-select: none; transition: transform 0.2s; box-shadow: 0 4px 0 var(--primary-dark);
+        }
+        .word-piece:active { transform: translateY(4px); box-shadow: none; }
+        .check-btn { margin-top: 20px; padding: 15px 40px; background: var(--secondary); color: var(--text-main); font-weight: bold; border: none; border-radius: 30px; font-size: 1.2rem; cursor: pointer;}
+
+        /* Modal Hasil / Feedback */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: var(--white); padding: 40px; border-radius: var(--border-radius-lg); text-align: center;
+            max-width: 600px; width: 90%; transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-icon { width: 80px; height: 80px; margin: 0 auto 20px; }
+        .modal-title { font-size: 2rem; margin-bottom: 10px; }
+        .modal-desc { font-size: 1.2rem; color: var(--text-light); margin-bottom: 30px; line-height: 1.6;}
+
+        /* === HALAMAN REFLEKSI === */
+        .refleksi-card { background: white; padding: 40px; border-radius: var(--border-radius-lg); box-shadow: var(--shadow); text-align: center;}
+        .emoji-group { display: flex; justify-content: center; gap: 30px; margin: 30px 0; }
+        .emoji-btn { font-size: 3rem; background: none; border: none; cursor: pointer; transition: transform 0.2s; filter: grayscale(100%); opacity: 0.6;}
+        .emoji-btn:hover { transform: scale(1.2); }
+        .emoji-btn.selected { filter: grayscale(0%); opacity: 1; transform: scale(1.3); }
+        .refleksi-input { width: 100%; max-width: 600px; padding: 15px; border-radius: 12px; border: 2px solid #ddd; font-size: 1.1rem; margin-bottom: 20px; resize: vertical;}
+
+        /* Utility Animasi */
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 75% {transform: translateX(10px);} }
+        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2000; }
+
+        /* === FOOTER CUSTOM CSS === */
+        .app-footer {
+            background-color: var(--white);
+            border-top: 1px solid #e2e8f0;
+            margin-top: auto;
+            box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+        .footer-content {
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 1.5rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #1e293b;
+        }
+        .footer-logo {
+            width: 2rem;
+            height: 2rem;
+            background-color: #2563eb;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.875rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .footer-text-title { font-weight: 800; font-size: 1.125rem; line-height: 1; margin: 0; }
+        .footer-text-copy { font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; }
+        .footer-right { display: flex; align-items: center; gap: 1rem; }
+        .social-link {
+            width: 2.5rem; height: 2.5rem; border-radius: 50%; background-color: #f8fafc;
+            display: flex; align-items: center; justify-content: center;
+            color: #64748b; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            transition: all 0.3s ease; text-decoration: none;
+        }
+        .social-link:hover { transform: translateY(-2px); }
+        .social-link.ig:hover { background-color: #fce7f3; color: #db2777; }
+        .social-link.tk:hover { background-color: #dbeafe; color: #3b82f6; }
+        .social-link.fb:hover { background-color: #e0e7ff; color: #4f46e5; }
+        .social-link.yt:hover { background-color: #fee2e2; color: #dc2626; }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 900px) {
+            .hero-section { flex-direction: column-reverse; text-align: center; padding: 30px 20px;}
+            .content-split { flex-direction: column; }
+            .tf-buttons { flex-direction: column; align-items: center;}
+            .btn-tf { width: 100%; max-width: 300px; }
+            .match-container { flex-direction: column; gap: 40px; }
+            .dd-zones { flex-direction: column; align-items: center; }
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                position: absolute; left: -280px; height: 100%;
+            }
+            #sidebar.open { transform: translateX(280px); box-shadow: 100vw 0 0 rgba(0,0,0,0.5); }
+            .hamburger-btn { display: block; }
+            header { padding: 0 15px; }
+            .app-title { font-size: 1.1rem; }
+            .progress-bar-bg { width: 100px; }
+            .header-right { gap: 10px; }
+            
+            .footer-content { flex-direction: column; text-align: center; gap: 1.5rem; }
+            .footer-left { flex-direction: column; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Layar Pemuatan -->
+    <div id="loading-screen">
+        <div class="loader"></div>
+        <h2>Memuat Media Pembelajaran...</h2>
+    </div>
+
+    <!-- Canvas untuk Confetti -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+        <div class="sidebar-header">
+            <h2>Kelas 8 SMP</h2>
+            <p>IPAS</p>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="menu-item active" data-target="beranda" onclick="App.navigasi('beranda')">
+                <svg class="menu-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Beranda
+            </li>
+            <li class="menu-item" data-target="materi" onclick="App.navigasi('materi')">
+                <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg> Materi
+            </li>
+            <li class="menu-item" data-target="latihan" onclick="App.navigasi('latihan')">
+                <svg class="menu-icon" viewBox="0 0 24 24"><path d="M21.58 16.09l-1.09-7.66C20.21 6.46 18.52 5 16.53 5H7.47C5.48 5 3.79 6.46 3.51 8.43l-1.09 7.66C2.2 17.63 3.39 19 4.94 19h14.12c1.55 0 2.74-1.37 2.52-2.91zM7 11c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm2 3c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm2-3c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm4 2h-2v-2h2v2zm2-2h-2V9h2v2z"/></svg> Latihan
+            </li>
+            <li class="menu-item" data-target="refleksi" onclick="App.navigasi('refleksi')">
+                <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Refleksi
+            </li>
+            <li class="menu-item" onclick="App.bukaPengembang()">
+                <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Pengembang
+            </li>
+        </ul>
+    </aside>
+
+    <!-- AREA UTAMA -->
+    <main id="main-area">
+        <!-- HEADER -->
+        <header>
+            <div class="header-left">
+                <button class="hamburger-btn" onclick="App.toggleSidebar()">☰</button>
+                <div class="app-title"> </div>
+            </div>
+            <div class="header-right">
+                <div class="progress-container">
+                    <span class="progress-text" id="progress-text">0%</span>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progress-bar"></div>
+                    </div>
+                </div>
+                <button class="control-btn" onclick="App.audio.toggleBGM()" title="Suara Latar">
+                    <svg id="icon-sound" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                </button>
+                <button class="control-btn" onclick="App.toggleFullScreen()" title="Layar Penuh">
+                    <svg id="icon-fullscreen" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- KONTEN -->
+        <div id="content-container">
+            
+            <!-- HALAMAN BERANDA -->
+            <section id="beranda" class="page-section active">
+                <div class="hero-section">
+                    <div class="hero-text">
+                        <h2>Sistem Ekskresi dan Pencernaan</h2>
+                        <h1>Anatomi Organ Hati Manusia</h1>
+                        <p>Mari kita cari tahu letak, fungsi, dan cara menjaga kesehatan organ hati kita yang sangat penting ini. Siap untuk petualangan seru?</p>
+                        <button class="btn-primary" onclick="App.navigasi('materi'); App.audio.playClick()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Mulai Belajar
+                        </button>
+                    </div>
+                    <div class="hero-image">
+                        <!-- Model 3D Hati Assemblr dengan Wrapper Cropping -->
+                        <div class="assemblr-wrapper">
+                            <iframe src="https://viewer.assemblrworld.com/Embed/-8PQh8UjqU4ajKkHkHbK" allow="camera; microphone; gyroscope; accelerometer; magnetometer; xr-spatial-tracking; fullscreen" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-cards">
+                    <div class="card">
+                        <svg class="card-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        <h3>Tahukah Kamu?</h3>
+                        <p>Hati adalah organ dalam terbesar di tubuh manusia dewasa, beratnya sekitar 1,5 kg lho!</p>
+                    </div>
+                    <div class="card">
+                        <svg class="card-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        <h3>Pabrik Hebat</h3>
+                        <p>Hati memiliki lebih dari 500 fungsi penting untuk menjaga kita tetap hidup dan sehat.</p>
+                    </div>
+                    <div class="card">
+                        <svg class="card-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 9h-2V7h-2v5H6v-2h2V7c0-1.1.9-2 2-2h2v7zm4 0h-2V7h-2v5h-2v-2h2V7c0-1.1.9-2 2-2h2v7zm-4 6H6v-2h6v2zm4 0h-2v-2h2v2z"/></svg>
+                        <h3>Bisa Tumbuh Lagi</h3>
+                        <p>Hati adalah satu-satunya organ yang bisa meregenerasi (tumbuh kembali) dirinya sendiri!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HALAMAN MATERI -->
+            <section id="materi" class="page-section">
+                <div class="materi-tabs">
+                    <button class="tab-btn active" onclick="App.materi.bukaTab(1)">Letak & Fungsi</button>
+                    <button class="tab-btn" onclick="App.materi.bukaTab(2)">Hubungan Organ</button>
+                    <button class="tab-btn" onclick="App.materi.bukaTab(3)">Kesehatan Hati</button>
+                </div>
+
+                <!-- Sub Materi 1 -->
+                <div id="sub-materi-1" class="sub-materi active">
+                    <h2>Di Mana Letak Hati dan Apa Fungsinya?</h2>
+                    <div class="content-text">
+                        <p>Hati terletak di <strong>rongga perut kanan atas</strong>, tepat di bawah diafragma (sekat rongga dada). Sebagian hati terlindungi oleh tulang rusuk kita.</p>
+                        <br>
+                        <div class="assemblr-wrapper" style="margin: 15px 0; height: 450px;">
+                            <iframe src="https://viewer.assemblrworld.com/Embed/-fffsgiEESgAy5iarJ3c" allow="camera; microphone; gyroscope; accelerometer; magnetometer; xr-spatial-tracking; fullscreen" allowfullscreen></iframe>
+                        </div>
+                        <div class="fact-card" style="text-align: center;">Klik gambar hati di atas untuk melihat animasi 3D fungsi Hati !</div>
+                    </div>
+                </div>
+
+                <!-- Sub Materi 2 -->
+                <div id="sub-materi-2" class="sub-materi">
+                    <h2>Kerja Sama Hati dengan Organ Lain</h2>
+                    <p>Hati tidak bekerja sendirian. Ia adalah bagian dari tim super di dalam tubuh kita!</p>
+                    
+                    <div class="flow-diagram">
+                        <div class="flow-box" style="background:#EF5350">HATI<br><small>Bikin Empedu</small></div>
+                        <div class="flow-arrow">➔</div>
+                        <div class="flow-box" style="background:#4CAF50">KANTUNG EMPEDU<br><small>Menyimpan</small></div>
+                        <div class="flow-arrow">➔</div>
+                        <div class="flow-box" style="background:#FF9800">USUS HALUS<br><small>Mencerna Lemak</small></div>
+                    </div>
+                    
+                    <div style="margin-top: 30px;" class="content-split">
+                        <div class="content-text">
+                            <ul style="list-style-type: none; padding:0; line-height:2;">
+                                <li>🩸 <strong>Hati & Darah:</strong> Semua darah dari lambung dan usus mengalir ke hati dulu untuk dibersihkan sebelum beredar ke seluruh tubuh.</li>
+                                <li>💧 <strong>Hati & Ginjal:</strong> Hati mengubah amonia (racun) menjadi urea. Urea lalu dikirim lewat darah ke ginjal untuk dibuang jadi air pipis (urin).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub Materi 3 -->
+                <div id="sub-materi-3" class="sub-materi">
+                    <h2>Menjaga Hati Tetap Sehat</h2>
+                    <p>Jika hati sakit, tubuh tidak bisa menyaring racun. Bagaimana cara merawatnya?</p>
+                    <div class="content-split" style="margin-top:20px;">
+                        <div class="card" style="border-top-color: var(--success);">
+                            <h3 style="color:var(--success)">✅ Lakukan Ini</h3>
+                            <ul style="text-align:left; padding-left:20px; line-height:1.8;">
+                                <li>Makan sayur dan buah (kaya antioksidan).</li>
+                                <li>Minum air putih yang cukup (membantu menyaring racun).</li>
+                                <li>Rajin berolahraga.</li>
+                                <li>Cuci tangan sebelum makan.</li>
+                            </ul>
+                        </div>
+                        <div class="card" style="border-top-color: var(--danger);">
+                            <h3 style="color:var(--danger)">❌ Hindari Ini</h3>
+                            <ul style="text-align:left; padding-left:20px; line-height:1.8;">
+                                <li>Terlalu banyak makan *junk food* (makanan cepat saji) & gorengan.</li>
+                                <li>Sering minum minuman manis/berwarna buatan.</li>
+                                <li>Jajan sembarangan (bisa terkena virus Hepatitis).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HALAMAN LATIHAN -->
+            <section id="latihan" class="page-section">
+                <div class="latihan-header">
+                    <h2>Ayo Berlatih!</h2>
+                    <div class="latihan-progress">Soal <span id="soal-saat-ini">1</span> dari <span id="total-soal">...</span></div>
+                </div>
+
+                <div class="latihan-container" id="area-soal">
+                    <!-- Soal akan dirender di sini oleh JavaScript -->
+                </div>
+            </section>
+
+            <!-- HALAMAN REFLEKSI -->
+            <section id="refleksi" class="page-section">
+                <div class="refleksi-card">
+                    <h2>Bagaimana Perasaanmu Belajar Hari Ini?</h2>
+                    <div class="emoji-group">
+                        <button class="emoji-btn" onclick="App.refleksi.pilihEmoji(this)">😞</button>
+                        <button class="emoji-btn" onclick="App.refleksi.pilihEmoji(this)">😐</button>
+                        <button class="emoji-btn" onclick="App.refleksi.pilihEmoji(this)">😊</button>
+                        <button class="emoji-btn" onclick="App.refleksi.pilihEmoji(this)">🤩</button>
+                    </div>
+                    
+                    <h3 style="margin-bottom:15px; color:var(--primary-dark)">Apa satu hal baru yang kamu pelajari tentang Hati?</h3>
+                    <textarea class="refleksi-input" rows="3" placeholder="Ketik jawabanmu di sini..."></textarea>
+                    
+                    <br>
+                    <button class="btn-primary" onclick="App.refleksi.selesai()">
+                        Kirim Refleksi & Selesai!
+                    </button>
+                </div>
+            </section>
+
+        </div>
+        
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <div class="footer-logo">S</div>
+                    <div>
+                        <p class="footer-text-title">Studiolpg</p>
+                        <p class="footer-text-copy">&copy; 2026 Noviyalpg creative - Media Pembelajaran Interaktif</p>
+                    </div>
+                </div>
+                <div class="footer-right">
+                    <a href="https://www.instagram.com/noviya.lpg?igsh=MWRlMHBraTc0eGt1bg%3D%3D" target="_blank" class="social-link ig" title="Instagram">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    </a>
+                    <a href="https://www.tiktok.com/@noviya.lpg?_t=ZS-8tafgg6Eeyl&_r=1" target="_blank" class="social-link tk" title="TikTok">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>
+                    </a>
+                    <a href="https://www.facebook.com/noviyalpg/" target="_blank" class="social-link fb" title="Facebook">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    </a>
+                    <a href="https://s.id/youtube-noviyalpg" target="_blank" class="social-link yt" title="YouTube">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- MODAL FEEDBACK / HASIL -->
+    <div class="modal-overlay" id="modal-feedback">
+        <div class="modal-content">
+            <svg class="modal-icon" id="modal-icon-benar" style="display:none; fill:var(--success)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            <svg class="modal-icon" id="modal-icon-salah" style="display:none; fill:var(--danger)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            <svg class="modal-icon" id="modal-icon-selesai" style="display:none; fill:var(--secondary)" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            
+            <h2 class="modal-title" id="modal-title">Judul</h2>
+            <p class="modal-desc" id="modal-desc">Deskripsi</p>
+            <button class="btn-primary" id="modal-btn" onclick="App.ui.tutupModal()">Lanjut</button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const AudioSys = {
+            ctx: null,
+            bgmOsc: null,
+            bgmGain: null,
+            isBgmPlaying: false,
+
+            init() {
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                } catch(e) { console.log('Web Audio API tidak didukung'); }
+            },
+            
+            _playTone(freq, type, duration, vol=0.1) {
+                if(!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            },
+
+            playClick() { this._playTone(600, 'sine', 0.1); },
+            playBenar() { 
+                this._playTone(523.25, 'sine', 0.1); // C5
+                setTimeout(() => this._playTone(659.25, 'sine', 0.2), 100); // E5
+            },
+            playSalah() { this._playTone(150, 'sawtooth', 0.3, 0.2); },
+            playSelesai() {
+                [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                    setTimeout(() => this._playTone(f, 'sine', 0.2), i * 150);
+                });
+            },
+            
+            toggleBGM() {
+                if(!this.ctx) this.init();
+                if(this.ctx.state === 'suspended') this.ctx.resume();
+                
+                const icon = document.getElementById('icon-sound');
+                if(this.isBgmPlaying) {
+                    if(this.bgmGain) this.bgmGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.5);
+                    setTimeout(() => { if(this.bgmOsc) {this.bgmOsc.stop(); this.bgmOsc.disconnect();}}, 500);
+                    this.isBgmPlaying = false;
+                    icon.style.opacity = '0.5';
+                } else {
+                    this.bgmOsc = this.ctx.createOscillator();
+                    this.bgmGain = this.ctx.createGain();
+                    this.bgmOsc.type = 'triangle';
+                    this.bgmGain.gain.value = 0.05;
+                    this.bgmOsc.connect(this.bgmGain);
+                    this.bgmGain.connect(this.ctx.destination);
+                    
+                    let time = this.ctx.currentTime;
+                    const notes = [261.63, 329.63, 392.00, 329.63]; 
+                    setInterval(() => {
+                        if(!this.isBgmPlaying) return;
+                        let n = notes[Math.floor(Math.random() * notes.length)];
+                        this.bgmOsc.frequency.setValueAtTime(n, this.ctx.currentTime);
+                    }, 1000);
+
+                    this.bgmOsc.start();
+                    this.isBgmPlaying = true;
+                    icon.style.opacity = '1';
+                }
+            }
+        };
+
+        const Confetti = {
+            canvas: document.getElementById('confetti-canvas'),
+            ctx: null,
+            particles: [],
+            animFrame: null,
+            
+            start() {
+                this.ctx = this.canvas.getContext('2d');
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                this.particles = [];
+                const colors = ['#fce18a', '#ff726d', '#b48def', '#f4306d'];
+                
+                for(let i=0; i<100; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height - this.canvas.height,
+                        w: Math.random() * 10 + 5,
+                        h: Math.random() * 10 + 5,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        vy: Math.random() * 3 + 2,
+                        vx: Math.random() * 2 - 1,
+                        rot: Math.random() * 360,
+                        rotSpeed: Math.random() * 5 - 2.5
+                    });
+                }
+                this.loop();
+                setTimeout(() => this.stop(), 4000);
+            },
+            loop() {
+                this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+                this.particles.forEach(p => {
+                    p.y += p.vy;
+                    p.x += p.vx;
+                    p.rot += p.rotSpeed;
+                    this.ctx.save();
+                    this.ctx.translate(p.x, p.y);
+                    this.ctx.rotate(p.rot * Math.PI / 180);
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+                    this.ctx.restore();
+                });
+                this.animFrame = requestAnimationFrame(() => this.loop());
+            },
+            stop() {
+                cancelAnimationFrame(this.animFrame);
+                this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+            }
+        };
+
+        /**
+         * DATA LATIHAN SOAL - TERMASUK SOAL HOTS
+         */
+        const LatihanData = [
+            // SOAL 1: HOTS - Studi Kasus (Level: Analisis & Evaluasi)
+            {
+                tipe: 'mcq',
+                soal: 'Berdasarkan kasus Budi di atas, organ apa yang sebenarnya sedang mengalami gangguan berat dan apa fungsi utamanya yang terhambat?',
+                konteks: '🗣️ <b>Studi Kasus Kontekstual:</b><br>Budi memiliki kebiasaan mengonsumsi minuman bersoda manis dan makanan berlemak tinggi setiap hari. Belakangan ini, ia merasa cepat lelah dan perut kanannya terasa sangat nyeri. Dokter mendiagnosis bahwa organ penyaring racun utama di tubuhnya bekerja terlalu keras hingga mengalami penumpukan lemak berlebih (<i>Fatty Liver</i>).',
+                opsi: [
+                    { teks: 'A. Ginjal, terhambat dalam fungsi menyaring urin dan zat besi.', kunci: false },
+                    { teks: 'B. Lambung, terhambat dalam proses mencerna protein kompleks.', kunci: false },
+                    { teks: 'C. Hati, terhambat dalam menetralisir racun dan memetabolisme lemak.', kunci: true },
+                    { teks: 'D. Usus besar, terhambat dalam fungsi menyerap air dan pembusukan.', kunci: false }
+                ],
+                pembahasan: 'Tepat sekali! Makanan berlemak dan minuman bersoda sangat memberatkan kerja hati. Hati berperan menetralisir racun dan memproduksi empedu untuk metabolisme lemak.'
+            },
+
+            // SOAL 2: HOTS - Analisis Data (Level: Analisis Fungsi Ekskresi)
+            {
+                tipe: 'mcq',
+                soal: 'Organ "X" pada kasus tersebut berperan penting dalam sistem ekskresi manusia. Proses spesifik apa yang sebenarnya sedang ditunjukkan oleh grafik penurunan racun tersebut?',
+                konteks: '📈 <b>Analisis Data Klinis:</b><br>Sebuah grafik hasil tes darah di laboratorium (hipotetis) menunjukkan bahwa kadar <i>Amonia</i> (zat yang sangat beracun bagi otak) dalam tubuh Pasien A sangat tinggi. Namun, seketika setelah aliran darah tersebut melewati organ "X", kadar zat beracun itu menurun hingga 95% karena telah diubah menjadi zat <i>Urea</i> yang jauh lebih aman.',
+                opsi: [
+                    { teks: 'A. Proses penyerapan kembali (reabsorpsi) nutrisi yang masih berguna ke dalam darah.', kunci: false },
+                    { teks: 'B. Proses perombakan sel-sel darah merah tua untuk dijadikan cairan empedu.', kunci: false },
+                    { teks: 'C. Proses penyaringan darah murni untuk diubah bentuknya menjadi urine primer.', kunci: false },
+                    { teks: 'D. Proses detoksifikasi racun (amonia) hasil pemecahan protein menjadi urea.', kunci: true }
+                ],
+                pembahasan: 'Luar Biasa! Fungsi ekskresi utama organ hati adalah merombak sisa protein (amonia beracun) menjadi urea (detoksifikasi) yang nantinya akan dibuang melalui ginjal.'
+            },
+
+            // SOAL 3: HOTS - Hubungan Antar Organ (Level: Sintesis)
+            {
+                tipe: 'mcq',
+                soal: 'Jika saluran empedu pada organ hati seseorang mengalami penyumbatan oleh "Batu Empedu", proses pencernaan zat apa yang akan paling parah terganggu, dan di mana letak persis gangguannya?',
+                konteks: '🔗 <b>Analisis Keterkaitan Organ:</b><br>Hati tidak bekerja sendirian, melainkan bekerja sama secara langsung dengan sistem pencernaan. Cairan empedu yang diproduksi oleh hati harus ditampung di kantung empedu sebelum disalurkan ke saluran pencernaan utama.',
+                opsi: [
+                    { teks: 'A. Pencernaan Lemak di dalam usus halus.', kunci: true },
+                    { teks: 'B. Pencernaan Karbohidrat di dalam rongga mulut.', kunci: false },
+                    { teks: 'C. Penyerapan Air di dalam usus besar.', kunci: false },
+                    { teks: 'D. Pencernaan Protein di dalam lambung.', kunci: false }
+                ],
+                pembahasan: 'Sangat Analitis! Empedu berfungsi untuk mengemulsikan (memecah) lemak agar mudah diserap. Jika salurannya tersumbat, maka pencernaan lemak di usus halus akan sangat terganggu.'
+            },
+
+            // SOAL 4: Benar Salah Interaktif
+            { tipe: 'tf', soal: 'Selain menghasilkan empedu, hati juga merupakan organ terbesar di dalam tubuh manusia yang mampu beregenerasi (tumbuh kembali).', kunci: true },
+            
+            // SOAL 5: Mencocokkan
+            {
+                tipe: 'match',
+                soal: 'Cocokkan bagian kiri dengan efek/pasangannya di kanan dengan cara klik/sentuh!',
+                pairs: [
+                    { a: 'Hati mengubah Amonia', b: 'Menjadi Urea (Ekskresi)' },
+                    { a: 'Cairan Empedu', b: 'Mencerna Lemak (Pencernaan)' },
+                    { a: 'Sering Makan Junk Food', b: 'Membuat Hati Bekerja Keras' },
+                    { a: 'Air Putih & Sayuran', b: 'Meringankan Beban Detoks Hati' }
+                ]
+            },
+
+            // SOAL 6: Kelompokkan / Drag Drop
+            {
+                tipe: 'dragdrop',
+                soal: 'Pindahkan (Drag) kartu gaya hidup ke kotak dampak yang tepat pada Organ Hati!',
+                items: ['Bayam & Brokoli', 'Sosis & Nugget Goreng', 'Olahraga Rutin', 'Minuman Bersoda Manis', 'Air Putih 2 Liter'],
+                kunci: {
+                    'Sehat': ['Bayam & Brokoli', 'Olahraga Rutin', 'Air Putih 2 Liter'],
+                    'Tidak Sehat': ['Sosis & Nugget Goreng', 'Minuman Bersoda Manis']
+                }
+            },
+
+            // SOAL 7: Susun Kalimat Sintesis
+            {
+                tipe: 'susun',
+                soal: 'Susunlah kesimpulan utama terkait fungsi hati di bawah ini dengan menyentuh kata-katanya!',
+                kata: ['racun', 'menetralisir', 'Hati', 'pencernaan', 'sistem', 'dan', 'membantu', 'ekskresi'],
+                kunci: 'Hati menetralisir racun dan membantu sistem pencernaan ekskresi' // Validasi toleran, kita buat simpel:
+                // Catatan: logika checkSusun memvalidasi string secara persis namun case-insensitive.
+                // Kunci yang paling masuk akal: "Hati membantu sistem pencernaan dan menetralisir racun ekskresi" (Agak ambigu).
+                // Kita ganti kata-katanya agar kalimatnya tunggal dan absolut.
+            }
+        ];
+
+        // Perbaikan Data Soal 7 (Susun Kalimat) agar tidak ambigu saat disusun siswa:
+        LatihanData[6].kata = ['menetralisir', 'Hati', 'darah', 'dari', 'membantu', 'racun'];
+        LatihanData[6].kunci = 'Hati membantu menetralisir racun dari darah';
+
+        const App = {
+            audio: AudioSys,
+            halamanAktif: 'beranda',
+            progress: 0,
+            skor: 0,
+            
+            latihan: {
+                indexSoal: 0,
+                jawabanMatchTemp: null, 
+                matchSelesai: 0,
+                susunanKata: [], 
+            },
+
+            init() {
+                setTimeout(() => {
+                    document.getElementById('loading-screen').style.opacity = '0';
+                    setTimeout(() => document.getElementById('loading-screen').style.display = 'none', 500);
+                }, 1000);
+
+                document.body.addEventListener('click', () => { if(!App.audio.ctx) App.audio.init(); }, {once: true});
+                document.body.addEventListener('touchstart', () => { if(!App.audio.ctx) App.audio.init(); }, {once: true});
+
+                this.updateProgress(10); 
+            },
+
+            navigasi(targetId) {
+                if(this.halamanAktif === targetId) return;
+                this.audio.playClick();
+                
+                document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+                
+                document.getElementById(targetId).classList.add('active');
+                document.querySelector(`.menu-item[data-target="${targetId}"]`).classList.add('active');
+                
+                this.halamanAktif = targetId;
+                if(window.innerWidth <= 768) this.toggleSidebar();
+
+                if(targetId === 'materi') this.updateProgress(30);
+                if(targetId === 'latihan') {
+                    if(this.latihan.indexSoal === 0) {
+                        this.renderSoal();
+                    }
+                }
+            },
+
+            toggleSidebar() {
+                document.getElementById('sidebar').classList.toggle('open');
+            },
+
+            toggleFullScreen() {
+                this.audio.playClick();
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => console.log(err));
+                } else {
+                    if (document.exitFullscreen) document.exitFullscreen();
+                }
+            },
+
+            bukaPengembang() {
+                this.audio.playClick();
+                window.location.href = 'https://s.id/noviyalpg';
+            },
+
+            updateProgress(val) {
+                if(val > this.progress) {
+                    this.progress = val;
+                    document.getElementById('progress-bar').style.width = this.progress + '%';
+                    document.getElementById('progress-text').innerText = this.progress + '%';
+                }
+            },
+
+            materi: {
+                bukaTab(num) {
+                    App.audio.playClick();
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.sub-materi').forEach(s => s.classList.remove('active'));
+                    document.querySelector(`.materi-tabs button:nth-child(${num})`).classList.add('active');
+                    document.getElementById(`sub-materi-${num}`).classList.add('active');
+                    App.updateProgress(30 + (num*10));
+                }
+            },
+
+            renderSoal() {
+                const data = LatihanData[this.latihan.indexSoal];
+                const area = document.getElementById('area-soal');
+                document.getElementById('soal-saat-ini').innerText = this.latihan.indexSoal + 1;
+                document.getElementById('total-soal').innerText = LatihanData.length;
+                area.innerHTML = ''; 
+
+                const qBox = document.createElement('div');
+                qBox.className = 'question-box';
+                qBox.innerText = data.soal;
+                
+                // Styling khusus jika soal tipe MCQ/HOTS agar font tidak terlalu kebesaran
+                if (data.tipe === 'mcq') {
+                    qBox.style.fontSize = "1.35rem";
+                    qBox.style.textAlign = "left";
+                }
+                
+                area.appendChild(qBox);
+
+                if (data.tipe === 'mcq') {
+                    let contextHtml = data.konteks ? `<div class="hots-context">${data.konteks}</div>` : '';
+                    let optionsHtml = data.opsi.map((opt, index) => {
+                        let huruf = opt.teks.substring(0, 2); // "A."
+                        let isiTeks = opt.teks.substring(2);
+                        return `
+                            <button class="btn-mcq" onclick="App.cekJawabanMCQ(${index})">
+                                <span class="opt-letter">${huruf}</span>
+                                <span>${isiTeks}</span>
+                            </button>
+                        `;
+                    }).join('');
+
+                    area.innerHTML += `
+                        ${contextHtml}
+                        <div class="mcq-container">
+                            ${optionsHtml}
+                        </div>
+                    `;
+                }
+                else if (data.tipe === 'tf') {
+                    area.innerHTML += `
+                        <div class="tf-buttons">
+                            <button class="btn-tf btn-true" onclick="App.cekJawabanTF(true)">BENAR</button>
+                            <button class="btn-tf btn-false" onclick="App.cekJawabanTF(false)">SALAH</button>
+                        </div>
+                    `;
+                } 
+                else if (data.tipe === 'match') {
+                    this.latihan.jawabanMatchTemp = null;
+                    this.latihan.matchSelesai = 0;
+                    
+                    let arrA = data.pairs.map((p, i) => ({text: p.a, id: i})).sort(() => Math.random() - 0.5);
+                    let arrB = data.pairs.map((p, i) => ({text: p.b, id: i})).sort(() => Math.random() - 0.5);
+
+                    let colA = arrA.map(item => `<div class="match-item" data-side="A" data-id="${item.id}" onclick="App.pilihMatch(this)">${item.text}</div>`).join('');
+                    let colB = arrB.map(item => `<div class="match-item" data-side="B" data-id="${item.id}" onclick="App.pilihMatch(this)">${item.text}</div>`).join('');
+
+                    area.innerHTML += `
+                        <div class="match-container">
+                            <div class="match-col" id="col-A">${colA}</div>
+                            <div class="match-col" id="col-B">${colB}</div>
+                        </div>
+                    `;
+                }
+                else if (data.tipe === 'dragdrop') {
+                    let itemsHtml = data.items.sort(() => Math.random() - 0.5)
+                        .map(item => `<div class="dd-item" draggable="true" data-val="${item}" ondragstart="App.dragStart(event)">${item}</div>`).join('');
+                    
+                    area.innerHTML += `
+                        <div class="dd-container">
+                            <div class="dd-items" id="dd-sumber" ondragover="App.dragOver(event)" ondrop="App.drop(event)">${itemsHtml}</div>
+                            <div class="dd-zones">
+                                <div class="dd-zone" data-cat="Sehat" ondragover="App.dragOver(event)" ondragenter="App.dragEnter(event)" ondragleave="App.dragLeave(event)" ondrop="App.drop(event)">
+                                    <h3>✅ Menyehatkan Hati</h3>
+                                </div>
+                                <div class="dd-zone" data-cat="Tidak Sehat" ondragover="App.dragOver(event)" ondragenter="App.dragEnter(event)" ondragleave="App.dragLeave(event)" ondrop="App.drop(event)">
+                                    <h3>❌ Merusak Hati</h3>
+                                </div>
+                            </div>
+                            <button class="check-btn" onclick="App.cekDragDrop()">Cek Jawaban</button>
+                        </div>
+                    `;
+                }
+                else if (data.tipe === 'susun') {
+                    this.latihan.susunanKata = [];
+                    let words = [...data.kata].sort(() => Math.random() - 0.5);
+                    let wordsHtml = words.map((w,i) => `<div class="word-piece" id="wp-${i}" onclick="App.pindahKata(this)">${w}</div>`).join('');
+
+                    area.innerHTML += `
+                        <div class="sentence-container">
+                            <div class="sentence-dropzone" id="susun-jawab"></div>
+                            <div class="word-bank" id="susun-sumber">${wordsHtml}</div>
+                            <button class="check-btn" onclick="App.cekSusun()">Cek Kalimat</button>
+                        </div>
+                    `;
+                }
+            },
+
+            // Evaluasi MCQ (HOTS)
+            cekJawabanMCQ(index) {
+                const data = LatihanData[this.latihan.indexSoal];
+                const isBenar = data.opsi[index].kunci;
+                if(isBenar) {
+                    this.skor += 20; // Skor lebih besar karena HOTS (Analisis tingkat tinggi)
+                    this.tampilFeedback(true, "Analisis Kamu Tepat!", data.pembahasan);
+                } else {
+                    this.tampilFeedback(false, "Analisis Belum Tepat", data.pembahasan + "<br><br><i>Jangan menyerah, baca lagi teliti konteksnya!</i>");
+                }
+            },
+
+            // Evaluasi Benar/Salah
+            cekJawabanTF(jawabanUser) {
+                const data = LatihanData[this.latihan.indexSoal];
+                if(jawabanUser === data.kunci) {
+                    this.skor += 10;
+                    this.tampilFeedback(true, "Hebat!", "Jawabanmu tepat sekali.");
+                } else {
+                    this.tampilFeedback(false, "Kurang Tepat", "Ayo pelajari materi lagi ya.");
+                }
+            },
+
+            // Evaluasi Match
+            pilihMatch(el) {
+                if(el.classList.contains('matched')) return;
+                this.audio.playClick();
+                
+                let side = el.getAttribute('data-side');
+                document.querySelectorAll(`.match-item[data-side="${side}"]`).forEach(i => i.classList.remove('selected'));
+                el.classList.add('selected');
+
+                let selectedA = document.querySelector('.match-item[data-side="A"].selected');
+                let selectedB = document.querySelector('.match-item[data-side="B"].selected');
+
+                if(selectedA && selectedB) {
+                    if(selectedA.getAttribute('data-id') === selectedB.getAttribute('data-id')) {
+                        this.audio.playBenar();
+                        selectedA.classList.replace('selected', 'matched');
+                        selectedB.classList.replace('selected', 'matched');
+                        this.skor += 2.5; 
+                        this.latihan.matchSelesai++;
+                        if(this.latihan.matchSelesai === LatihanData[this.latihan.indexSoal].pairs.length) {
+                            setTimeout(() => this.tampilFeedback(true, "Luar Biasa!", "Kamu berhasil mencocokkan semua relasi dengan benar."), 500);
+                        }
+                    } else {
+                        this.audio.playSalah();
+                        selectedA.classList.add('error'); selectedB.classList.add('error');
+                        setTimeout(() => {
+                            selectedA.classList.remove('selected', 'error');
+                            selectedB.classList.remove('selected', 'error');
+                        }, 500);
+                    }
+                }
+            },
+
+            // Drag Drop Logic 
+            dragStart(e) { e.dataTransfer.setData('text/plain', e.target.getAttribute('data-val')); e.target.style.opacity = '0.5'; },
+            dragOver(e) { e.preventDefault(); },
+            dragEnter(e) { if(e.target.classList.contains('dd-zone')) e.target.classList.add('drag-over'); },
+            dragLeave(e) { if(e.target.classList.contains('dd-zone')) e.target.classList.remove('drag-over'); },
+            drop(e) {
+                e.preventDefault();
+                let zone = e.target.closest('.dd-zone') || document.getElementById('dd-sumber');
+                if(zone) {
+                    zone.classList.remove('drag-over');
+                    let val = e.dataTransfer.getData('text/plain');
+                    let item = document.querySelector(`.dd-item[data-val="${val}"]`);
+                    item.style.opacity = '1';
+                    zone.appendChild(item);
+                    App.audio.playClick();
+                }
+            },
+            cekDragDrop() {
+                const kunci = LatihanData[this.latihan.indexSoal].kunci;
+                let benarSemua = true;
+                let terisi = 0;
+
+                ['Sehat', 'Tidak Sehat'].forEach(kat => {
+                    const zone = document.querySelector(`.dd-zone[data-cat="${kat}"]`);
+                    const items = Array.from(zone.children).filter(c => c.classList.contains('dd-item')).map(c => c.getAttribute('data-val'));
+                    terisi += items.length;
+                    
+                    items.forEach(item => {
+                        if(!kunci[kat].includes(item)) benarSemua = false;
+                    });
+                });
+
+                if(terisi < 5) {
+                    alert("Pindahkan semua kartu ke kotak sasaran terlebih dahulu!"); return;
+                }
+
+                if(benarSemua) {
+                    this.skor += 10;
+                    this.tampilFeedback(true, "Kerja Bagus!", "Klasifikasi kebiasaan hidupmu sangat akurat.");
+                } else {
+                    this.tampilFeedback(false, "Ada yang tertukar!", "Coba ingat lagi apa dampaknya bagi beban kerja Hati.");
+                }
+            },
+
+            // Susun Kalimat Logic
+            pindahKata(el) {
+                this.audio.playClick();
+                const jawabArea = document.getElementById('susun-jawab');
+                const sumberArea = document.getElementById('susun-sumber');
+                
+                if(el.parentElement.id === 'susun-sumber') {
+                    jawabArea.appendChild(el);
+                } else {
+                    sumberArea.appendChild(el);
+                }
+            },
+            cekSusun() {
+                const kunci = LatihanData[this.latihan.indexSoal].kunci.toLowerCase();
+                const jawabArea = document.getElementById('susun-jawab');
+                const kataUser = Array.from(jawabArea.children).map(c => c.innerText).join(' ').toLowerCase();
+
+                if(kataUser.length < 5) { alert("Susun kata-katanya di kotak kosong di atas!"); return; }
+
+                if(kataUser === kunci) {
+                    this.skor += 10;
+                    this.tampilFeedback(true, "Tepat Sekali!", "Sintesis kalimat fungsionalnya sudah benar.");
+                } else {
+                    this.tampilFeedback(false, "Belum Tepat", "Coba susun ulang kalimatnya agar maknanya pas.");
+                }
+            },
+
+            // UI Feedback Modal
+            tampilFeedback(isBenar, title, desc) {
+                if(isBenar) this.audio.playBenar(); else this.audio.playSalah();
+                
+                document.getElementById('modal-icon-benar').style.display = isBenar ? 'block' : 'none';
+                document.getElementById('modal-icon-salah').style.display = !isBenar ? 'block' : 'none';
+                document.getElementById('modal-icon-selesai').style.display = 'none';
+                
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-title').style.color = isBenar ? 'var(--success)' : 'var(--danger)';
+                document.getElementById('modal-desc').innerHTML = desc; // Menggunakan innerHTML karena pembahasan bisa mengandung HTML tag (<br>, <i>)
+                
+                const btn = document.getElementById('modal-btn');
+                btn.innerText = "Lanjut";
+                btn.onclick = () => { this.ui.tutupModal(); this.lanjutSoal(); };
+
+                document.getElementById('modal-feedback').classList.add('active');
+            },
+
+            lanjutSoal() {
+                this.latihan.indexSoal++;
+                this.updateProgress(60 + Math.floor((this.latihan.indexSoal / LatihanData.length) * 40)); 
+                
+                if(this.latihan.indexSoal < LatihanData.length) {
+                    this.renderSoal();
+                } else {
+                    // SELESAI LATIHAN
+                    this.audio.playSelesai();
+                    Confetti.start();
+                    
+                    document.getElementById('modal-icon-benar').style.display = 'none';
+                    document.getElementById('modal-icon-salah').style.display = 'none';
+                    document.getElementById('modal-icon-selesai').style.display = 'block';
+                    
+                    document.getElementById('modal-title').innerText = "Simulasi Selesai!";
+                    document.getElementById('modal-title').style.color = 'var(--primary-dark)';
+                    document.getElementById('modal-desc').innerHTML = `Luar biasa! Kamu telah menguji kemampuan analisismu dengan baik.<br><br><strong>Total Skor: ${this.skor}</strong>`;
+                    
+                    const btn = document.getElementById('modal-btn');
+                    btn.innerText = "Lanjut ke Refleksi";
+                    btn.onclick = () => { this.ui.tutupModal(); this.navigasi('refleksi'); };
+                    
+                    document.getElementById('modal-feedback').classList.add('active');
+                }
+            },
+
+            refleksi: {
+                pilihEmoji(el) {
+                    App.audio.playClick();
+                    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+                    el.classList.add('selected');
+                },
+                selesai() {
+                    const text = document.querySelector('.refleksi-input').value;
+                    if(!document.querySelector('.emoji-btn.selected')) {
+                        alert("Pilih satu emoji yang menggambarkan perasaanmu dulu ya!"); return;
+                    }
+                    if(text.length < 5) {
+                        alert("Tuliskan sedikit kesimpulan apa yang kamu pelajari."); return;
+                    }
+
+                    App.updateProgress(100);
+                    App.audio.playSelesai();
+                    Confetti.start();
+                    alert("Terima kasih! Sesi pembelajaran sistem ekskresi & pencernaan hari ini telah selesai.");
+                    App.navigasi('beranda'); 
+                }
+            },
+
+            ui: {
+                tutupModal() {
+                    App.audio.playClick();
+                    document.getElementById('modal-feedback').classList.remove('active');
+                }
+            }
+        };
+
+        window.onload = () => App.init();
+
+    </script>
+</body>
+</html>
